@@ -363,48 +363,53 @@ __ALIGN_BEGIN static uint8_t HID_MOUSE_ReportDesc[HID_MOUSE_REPORT_DESC_SIZE]  _
 //  0x01,   0xb1,
 //
 //  0x01,   0xc0
+//
+//	    0x05, 0x02,                    // USAGE_PAGE (Simulation Controls)
+//	    0x09, 0x02,                    // USAGE (Automobile Simulation Device)
+//	    0xa1, 0x01,                    // COLLECTION (Application)
+//	    0x85, 0x01,                    //   REPORT_ID (1)
+//	    0x09, 0xc8,                    //   USAGE (Steering)
+//	    0x16, 0x00, 0x80,              //   LOGICAL_MINIMUM (-32768)
+//	    0x26, 0xff, 0x7f,              //   LOGICAL_MAXIMUM (32767)
+//	    0x75, 0x10,                    //   REPORT_SIZE (16)
+//	    0x95, 0x01,                    //   REPORT_COUNT (1)
+//	    0x81, 0x02,                    //   INPUT (Data,Var,Abs)
+//	    0xa1, 0x00,                    //   COLLECTION (Physical)
+//	    0x09, 0xc4,                    //   	USAGE (Accelerator)
+//	    0x09, 0xc5,                    //   	USAGE (Brake)
+//	    0x09, 0xc6,                    //   	USAGE (Clutch)
+//	    0x15, 0x00,                    //  	 	LOGICAL_MINIMUM (0)
+//	    0x26, 0xff, 0x00,              //   	LOGICAL_MAXIMUM (255)
+//	    0x75, 0x08,                    //   	REPORT_SIZE (8)
+//	    0x95, 0x03,                    //   	REPORT_COUNT (3)
+//	    0x81, 0x02,                    //   	INPUT (Data,Var,Abs)
+//	    0xc0,                          // 	END_COLLECTION
+//	    0xc0                           // END_COLLECTION
 
-	    0x05, 0x02,                    // USAGE_PAGE (Simulation Controls)
-	    0x09, 0x02,                    // USAGE (Automobile Simulation Device)
+
+	    0x05, 0x01,                    // USAGE_PAGE (Generic Desktop)
+	    0x09, 0x05,                    // USAGE (Game Pad)
 	    0xa1, 0x01,                    // COLLECTION (Application)
-	    0x85, 0x03,                    //   REPORT_ID (3)
-	    0x09, 0xc4,                    //   USAGE (Accelerator)
+	    0x85, HID_REPORT_ID,                    //   REPORT_ID (241)
+	    0x09, 0x36,                    //   USAGE (Slider)
+	    0x09, 0x36,                    //   USAGE (Slider)
+	    0x09, 0x36,                    //   USAGE (Slider)
 	    0x15, 0x00,                    //   LOGICAL_MINIMUM (0)
 	    0x26, 0xff, 0x00,              //   LOGICAL_MAXIMUM (255)
+	    0x35, 0x00,                    //   PHYSICAL_MINIMUM (0)
+	    0x46, 0xff, 0x00,              //   PHYSICAL_MAXIMUM (255)
 	    0x75, 0x08,                    //   REPORT_SIZE (8)
-	    0x95, 0x01,                    //   REPORT_COUNT (1)
+	    0x95, 0x03,                    //   REPORT_COUNT (3)
 	    0x81, 0x02,                    //   INPUT (Data,Var,Abs)
-	    0x09, 0xc5,                    //   USAGE (Brake)
+	    0x09, 0x30,                    //   USAGE (X)
 	    0x15, 0x00,                    //   LOGICAL_MINIMUM (0)
-	    0x26, 0xff, 0x00,              //   LOGICAL_MAXIMUM (255)
-	    0x75, 0x08,                    //   REPORT_SIZE (8)
+	    0x27, 0xff, 0xff, 0x00, 0x00,  //   LOGICAL_MAXIMUM (65535)
+	    0x35, 0x00,                    //   PHYSICAL_MINIMUM (0)
+	    0x47, 0xff, 0xff, 0x00, 0x00,  //   PHYSICAL_MAXIMUM (65535)
+	    0x75, 0x10,                    //   REPORT_SIZE (16)
 	    0x95, 0x01,                    //   REPORT_COUNT (1)
 	    0x81, 0x02,                    //   INPUT (Data,Var,Abs)
-	    0x09, 0xc6,                    //   USAGE (Clutch)
-	    0x15, 0x00,                    //   LOGICAL_MINIMUM (0)
-	    0x26, 0xff, 0x00,              //   LOGICAL_MAXIMUM (255)
-	    0x75, 0x08,                    //   REPORT_SIZE (8)
-	    0x95, 0x01,                    //   REPORT_COUNT (1)
-	    0x81, 0x02,                    //   INPUT (Data,Var,Abs)
-	    0xc0                           // END_COLLECTION
-
-//		// Joystick
-//		0x05, 0x01,			      // USAGE_PAGE (Generic Desktop)
-//		0x09, 0x04,			      // USAGE (Joystick)
-//		0xa1, 0x01,			      // COLLECTION (Application)
-//		0x85, 0x03, //   REPORT_ID (3)
-//
-//		// 32 Buttons
-//		0x05, 0x09,			      //   USAGE_PAGE (Button)
-//		0x19, 0x01,			      //   USAGE_MINIMUM (Button 1)
-//		0x29, 0x20,			      //   USAGE_MAXIMUM (Button 32)
-//		0x15, 0x00,			      //   LOGICAL_MINIMUM (0)
-//		0x25, 0x01,			      //   LOGICAL_MAXIMUM (1)
-//		0x75, 0x01,			      //   REPORT_SIZE (1)
-//		0x95, 0x20,			      //   REPORT_COUNT (32)
-//		0x81, 0x02,			      //   INPUT (Data Var Abs)
-//
-//		0xc0				      // END_COLLECTION
+	    0xc0                           //     END_COLLECTION
 };
 
 /**

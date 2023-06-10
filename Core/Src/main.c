@@ -47,22 +47,11 @@ extern USBD_HandleTypeDef hUsbDeviceFS;
 
 typedef struct
 {
-	uint8_t  reportId;                                 // Report ID = 0x01 (1)
-//	uint32_t buttons;
-	uint8_t axis[3];
-
-//	uint8_t MODIFIER;
-//	uint8_t RESERVED;
-//	uint8_t KEYCODE1;
-//	uint8_t KEYCODE2;
-//	uint8_t KEYCODE3;
-//	uint8_t KEYCODE4;
-//	uint8_t KEYCODE5;
-//	uint8_t KEYCODE6;
-
-//	uint8_t throttle;
-//	uint8_t brake;
-//	uint8_t clutch;
+	uint8_t  reportId;
+	uint8_t accelerator;
+	uint8_t brake;
+	uint8_t clutch;
+	uint16_t steering;
 }subKeyBoard;
 
 /* USER CODE END PV */
@@ -111,7 +100,9 @@ int main(void)
   /* USER CODE BEGIN 2 */
 
 //  uint8_t data[3] = {0};
-  subKeyBoard data = {3, {0}};
+  subKeyBoard data = {0};
+  data.reportId = (uint8_t) HID_REPORT_ID;
+  data.steering = 1 << 15;
 
   /* USER CODE END 2 */
 
@@ -120,13 +111,12 @@ int main(void)
   while (1)
   {
     /* USER CODE END WHILE */
-	  for(int i = 0; i<3; i++){
-		  data.axis[i] = (data.axis[i]+10)%256;
-	  }
+	  data.steering = (data.steering+1000)%((1 << 16)+1);
+	  data.accelerator = (data.accelerator+1)%((1 << 8)+1);
+	  data.brake = (data.brake+1)%((1 << 8)+1);
+	  data.clutch = (data.clutch+1)%((1 << 8)+1);
 
-//	  data.buttons = (data.buttons << 1);
-
-	  USBD_HID_SendReport(&hUsbDeviceFS,(uint8_t*)&data,sizeof(data));
+	  USBD_HID_SendReport(&hUsbDeviceFS, (uint8_t*) &data, sizeof(data));
 	  HAL_Delay(100); 	       // Repeat this task on every 1 second
     /* USER CODE BEGIN 3 */
   }
