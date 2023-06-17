@@ -32,7 +32,7 @@
 
 /* Exported types ------------------------------------------------------------*/
 /* USER CODE BEGIN ET */
-
+typedef void(*callback_fun_t)(void);
 /* USER CODE END ET */
 
 /* Exported constants --------------------------------------------------------*/
@@ -42,7 +42,7 @@
 
 /* Exported macro ------------------------------------------------------------*/
 /* USER CODE BEGIN EM */
-
+#define SYSTICK_MAX_CALLBACK_FUNCTION		16
 /* USER CODE END EM */
 
 /* Exported functions prototypes ---------------------------------------------*/
@@ -55,9 +55,10 @@ void SVC_Handler(void);
 void DebugMon_Handler(void);
 void PendSV_Handler(void);
 void SysTick_Handler(void);
+void DMA1_Channel1_IRQHandler(void);
 void USB_LP_CAN1_RX0_IRQHandler(void);
 /* USER CODE BEGIN EFP */
-
+void SysTick_Add_Callback(callback_fun_t func);
 /* USER CODE END EFP */
 
 #ifdef __cplusplus

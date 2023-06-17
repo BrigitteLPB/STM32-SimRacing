@@ -1,21 +1,21 @@
 /* USER CODE BEGIN Header */
 /**
-  ******************************************************************************
-  * @file           : Target/usbd_conf.c
-  * @version        : v2.0_Cube
-  * @brief          : This file implements the board support package for the USB device library
-  ******************************************************************************
-  * @attention
-  *
-  * Copyright (c) 2023 STMicroelectronics.
-  * All rights reserved.
-  *
-  * This software is licensed under terms that can be found in the LICENSE file
-  * in the root directory of this software component.
-  * If no LICENSE file comes with this software, it is provided AS-IS.
-  *
-  ******************************************************************************
-  */
+ ******************************************************************************
+ * @file           : Target/usbd_conf.c
+ * @version        : v2.0_Cube
+ * @brief          : This file implements the board support package for the USB device library
+ ******************************************************************************
+ * @attention
+ *
+ * Copyright (c) 2023 STMicroelectronics.
+ * All rights reserved.
+ *
+ * This software is licensed under terms that can be found in the LICENSE file
+ * in the root directory of this software component.
+ * If no LICENSE file comes with this software, it is provided AS-IS.
+ *
+ ******************************************************************************
+ */
 /* USER CODE END Header */
 
 /* Includes ------------------------------------------------------------------*/
@@ -202,11 +202,11 @@ void HAL_PCD_SuspendCallback(PCD_HandleTypeDef *hpcd)
   USBD_LL_Suspend((USBD_HandleTypeDef*)hpcd->pData);
   /* Enter in STOP mode. */
   /* USER CODE BEGIN 2 */
-  if (hpcd->Init.low_power_enable)
-  {
-    /* Set SLEEPDEEP bit and SleepOnExit of Cortex System Control Register. */
-    SCB->SCR |= (uint32_t)((uint32_t)(SCB_SCR_SLEEPDEEP_Msk | SCB_SCR_SLEEPONEXIT_Msk));
-  }
+	if (hpcd->Init.low_power_enable) {
+		/* Set SLEEPDEEP bit and SleepOnExit of Cortex System Control Register. */
+		SCB->SCR |= (uint32_t) ((uint32_t) (SCB_SCR_SLEEPDEEP_Msk
+				| SCB_SCR_SLEEPONEXIT_Msk));
+	}
   /* USER CODE END 2 */
 }
 
@@ -329,11 +329,14 @@ USBD_StatusTypeDef USBD_LL_Init(USBD_HandleTypeDef *pdev)
   HAL_PCD_RegisterIsoInIncpltCallback(&hpcd_USB_FS, PCD_ISOINIncompleteCallback);
 #endif /* USE_HAL_PCD_REGISTER_CALLBACKS */
   /* USER CODE BEGIN EndPoint_Configuration */
-  HAL_PCDEx_PMAConfig((PCD_HandleTypeDef*)pdev->pData , 0x00 , PCD_SNG_BUF, 0x18);
-  HAL_PCDEx_PMAConfig((PCD_HandleTypeDef*)pdev->pData , 0x80 , PCD_SNG_BUF, 0x58);
+	HAL_PCDEx_PMAConfig((PCD_HandleTypeDef*) pdev->pData, 0x00, PCD_SNG_BUF,
+			0x18);
+	HAL_PCDEx_PMAConfig((PCD_HandleTypeDef*) pdev->pData, 0x80, PCD_SNG_BUF,
+			0x58);
   /* USER CODE END EndPoint_Configuration */
   /* USER CODE BEGIN EndPoint_Configuration_HID */
-  HAL_PCDEx_PMAConfig((PCD_HandleTypeDef*)pdev->pData , 0x81 , PCD_SNG_BUF, 0x100);
+	HAL_PCDEx_PMAConfig((PCD_HandleTypeDef*) pdev->pData, 0x81, PCD_SNG_BUF,
+			0x100);
   /* USER CODE END EndPoint_Configuration_HID */
   return USBD_OK;
 }
@@ -614,16 +617,13 @@ void HAL_PCDEx_SetConnectionState(PCD_HandleTypeDef *hpcd, uint8_t state)
 #endif /* USE_HAL_PCD_REGISTER_CALLBACKS */
 {
   /* USER CODE BEGIN 6 */
-  if (state == 1)
-  {
-    /* Configure Low connection state. */
+	if (state == 1) {
+		/* Configure Low connection state. */
 
-  }
-  else
-  {
-    /* Configure High connection state. */
+	} else {
+		/* Configure High connection state. */
 
-  }
+	}
   /* USER CODE END 6 */
 }
 

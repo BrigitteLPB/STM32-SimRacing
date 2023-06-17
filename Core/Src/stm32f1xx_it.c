@@ -41,7 +41,8 @@
 
 /* Private variables ---------------------------------------------------------*/
 /* USER CODE BEGIN PV */
-
+static volatile callback_fun_t systick_callbacks[SYSTICK_MAX_CALLBACK_FUNCTION] = {0};
+static volatile uint8_t systick_callbacks_index = 0;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -56,6 +57,7 @@
 
 /* External variables --------------------------------------------------------*/
 extern PCD_HandleTypeDef hpcd_USB_FS;
+extern DMA_HandleTypeDef hdma_adc1;
 /* USER CODE BEGIN EV */
 
 /* USER CODE END EV */
@@ -187,7 +189,9 @@ void SysTick_Handler(void)
   /* USER CODE END SysTick_IRQn 0 */
   HAL_IncTick();
   /* USER CODE BEGIN SysTick_IRQn 1 */
-
+  for(uint8_t i=0; i<systick_callbacks_index; i++){
+	  (systick_callbacks[i])();
+  }
   /* USER CODE END SysTick_IRQn 1 */
 }
 
@@ -197,6 +201,20 @@ void SysTick_Handler(void)
 /* For the available peripheral interrupt handler names,                      */
 /* please refer to the startup file (startup_stm32f1xx.s).                    */
 /******************************************************************************/
+
+/**
+  * @brief This function handles DMA1 channel1 global interrupt.
+  */
+void DMA1_Channel1_IRQHandler(void)
+{
+  /* USER CODE BEGIN DMA1_Channel1_IRQn 0 */
+
+  /* USER CODE END DMA1_Channel1_IRQn 0 */
+  HAL_DMA_IRQHandler(&hdma_adc1);
+  /* USER CODE BEGIN DMA1_Channel1_IRQn 1 */
+
+  /* USER CODE END DMA1_Channel1_IRQn 1 */
+}
 
 /**
   * @brief This function handles USB low priority or CAN RX0 interrupts.
@@ -213,5 +231,10 @@ void USB_LP_CAN1_RX0_IRQHandler(void)
 }
 
 /* USER CODE BEGIN 1 */
-
+void SysTick_Add_Callback(callback_fun_t func){
+	if(systick_callbacks_index < SYSTICK_MAX_CALLBACK_FUNCTION-1){
+		systick_callbacks[systick_callbacks_index] = func;
+		systick_callbacks_index++;
+	}
+}
 /* USER CODE END 1 */
