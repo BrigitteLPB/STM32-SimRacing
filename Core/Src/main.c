@@ -36,7 +36,8 @@
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
 #define ADC_CHANNEL_COUNT	3
-#define MAX_ADC_VALUE		3400
+#define MAX_ADC_VALUE		3800
+#define MIN_ADC_VALUE		600
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
@@ -118,7 +119,7 @@ int main(void)
 
 	// ADC
 	HAL_ADC_Start_DMA(&hadc1, adc_values, ADC_CHANNEL_COUNT);
-	double adc_convertion_factor = (double) (1<<8) / MAX_ADC_VALUE;
+	double adc_convertion_factor = (double) (1<<8) / (MAX_ADC_VALUE - MIN_ADC_VALUE);
 
   /* USER CODE END 2 */
 
@@ -139,14 +140,16 @@ int main(void)
 			for(uint8_t i=0; i<ADC_CHANNEL_COUNT; i++){
 				if(adc_values[i] > MAX_ADC_VALUE){
 					adc_byte_value[i] = (uint8_t) (2 << 8) - 1;
+				}else if(adc_values[i] < MIN_ADC_VALUE){
+					adc_byte_value[i] = 0;
 				}else{
-					adc_byte_value[i] = (uint8_t) (adc_values[i] * adc_convertion_factor);
+					adc_byte_value[i] = (uint8_t) ((adc_values[i] - MIN_ADC_VALUE) * adc_convertion_factor);
 				}
 			}
 
-			data.accelerator = adc_byte_value[0];
-			data.brake = adc_byte_value[1];
-			data.clutch = adc_byte_value[2];
+			data.accelerator = 255 - adc_byte_value[0];
+			data.brake = 255 - adc_byte_value[1];
+			data.clutch = 255 - adc_byte_value[2];
 
 			USBD_HID_SendReport(&hUsbDeviceFS, (uint8_t*) &data, sizeof(data));
 		}
