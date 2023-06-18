@@ -35,7 +35,8 @@
 
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
-
+#define ADC_CHANNEL_COUNT	3
+#define MAX_ADC_VALUE		3400
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
@@ -60,6 +61,7 @@ typedef struct {
 	uint16_t steering;
 } CarControlsReportData;
 
+uint32_t adc_values[ADC_CHANNEL_COUNT] = { 0 };
 //static uint32_t value_adc;
 /* USER CODE END PV */
 
@@ -115,12 +117,15 @@ int main(void)
 	data.steering = 1 << 15;
 
 	// ADC
-//	HAL_ADC_Start_DMA(&hadc1, (uint32_t *) &value_adc, 1);
-	HAL_ADC_Start_IT(&hadc1);
+	HAL_ADC_Start_DMA(&hadc1, adc_values, ADC_CHANNEL_COUNT);
+	double adc_convertion_factor = (double) (1<<8) / MAX_ADC_VALUE;
+
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
+	uint8_t adc_byte_value[ADC_CHANNEL_COUNT] = {0};
+
 	while (1) {
 		if (!t_led) {
 			t_led = 1000;
@@ -130,13 +135,18 @@ int main(void)
 		if (!t_usb) {
 			t_usb = 100;
 
-			volatile uint32_t value_adc = HAL_ADC_GetValue(&hadc1);
+			// convert data
+			for(uint8_t i=0; i<ADC_CHANNEL_COUNT; i++){
+				if(adc_values[i] > MAX_ADC_VALUE){
+					adc_byte_value[i] = (uint8_t) (2 << 8) - 1;
+				}else{
+					adc_byte_value[i] = (uint8_t) (adc_values[i] * adc_convertion_factor);
+				}
+			}
 
-//			data.steering = (data.steering + 1000) % ((1 << 16) + 1);
-			data.accelerator = (data.accelerator + 1) % ((1 << 8) + 1);
-//			data.brake = (data.brake + 1) % ((1 << 8) + 1);
-			data.brake = (uint8_t) (value_adc >> 4);
-			data.clutch = (data.clutch + 1) % ((1 << 8) + 1);
+			data.accelerator = adc_byte_value[0];
+			data.brake = adc_byte_value[1];
+			data.clutch = adc_byte_value[2];
 
 			USBD_HID_SendReport(&hUsbDeviceFS, (uint8_t*) &data, sizeof(data));
 		}
@@ -162,11 +172,11 @@ void SystemClock_Config(void)
   */
   RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSE;
   RCC_OscInitStruct.HSEState = RCC_HSE_ON;
-  RCC_OscInitStruct.HSEPredivValue = RCC_HSE_PREDIV_DIV1;
+  RCC_OscInitStruct.HSEPredivValue = RCC_HSE_PREDIV_DIV2;
   RCC_OscInitStruct.HSIState = RCC_HSI_ON;
   RCC_OscInitStruct.PLL.PLLState = RCC_PLL_ON;
   RCC_OscInitStruct.PLL.PLLSource = RCC_PLLSOURCE_HSE;
-  RCC_OscInitStruct.PLL.PLLMUL = RCC_PLL_MUL6;
+  RCC_OscInitStruct.PLL.PLLMUL = RCC_PLL_MUL12;
   if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK)
   {
     Error_Handler();
@@ -177,7 +187,7 @@ void SystemClock_Config(void)
   RCC_ClkInitStruct.ClockType = RCC_CLOCKTYPE_HCLK|RCC_CLOCKTYPE_SYSCLK
                               |RCC_CLOCKTYPE_PCLK1|RCC_CLOCKTYPE_PCLK2;
   RCC_ClkInitStruct.SYSCLKSource = RCC_SYSCLKSOURCE_PLLCLK;
-  RCC_ClkInitStruct.AHBCLKDivider = RCC_SYSCLK_DIV1;
+  RCC_ClkInitStruct.AHBCLKDivider = RCC_SYSCLK_DIV2;
   RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV2;
   RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV1;
 
@@ -186,7 +196,7 @@ void SystemClock_Config(void)
     Error_Handler();
   }
   PeriphClkInit.PeriphClockSelection = RCC_PERIPHCLK_ADC|RCC_PERIPHCLK_USB;
-  PeriphClkInit.AdcClockSelection = RCC_ADCPCLK2_DIV4;
+  PeriphClkInit.AdcClockSelection = RCC_ADCPCLK2_DIV2;
   PeriphClkInit.UsbClockSelection = RCC_USBCLKSOURCE_PLL;
   if (HAL_RCCEx_PeriphCLKConfig(&PeriphClkInit) != HAL_OK)
   {
@@ -215,12 +225,12 @@ static void MX_ADC1_Init(void)
   /** Common config
   */
   hadc1.Instance = ADC1;
-  hadc1.Init.ScanConvMode = ADC_SCAN_DISABLE;
+  hadc1.Init.ScanConvMode = ADC_SCAN_ENABLE;
   hadc1.Init.ContinuousConvMode = ENABLE;
   hadc1.Init.DiscontinuousConvMode = DISABLE;
   hadc1.Init.ExternalTrigConv = ADC_SOFTWARE_START;
   hadc1.Init.DataAlign = ADC_DATAALIGN_RIGHT;
-  hadc1.Init.NbrOfConversion = 1;
+  hadc1.Init.NbrOfConversion = 3;
   if (HAL_ADC_Init(&hadc1) != HAL_OK)
   {
     Error_Handler();
@@ -230,7 +240,25 @@ static void MX_ADC1_Init(void)
   */
   sConfig.Channel = ADC_CHANNEL_0;
   sConfig.Rank = ADC_REGULAR_RANK_1;
-  sConfig.SamplingTime = ADC_SAMPLETIME_1CYCLE_5;
+  sConfig.SamplingTime = ADC_SAMPLETIME_239CYCLES_5;
+  if (HAL_ADC_ConfigChannel(&hadc1, &sConfig) != HAL_OK)
+  {
+    Error_Handler();
+  }
+
+  /** Configure Regular Channel
+  */
+  sConfig.Channel = ADC_CHANNEL_1;
+  sConfig.Rank = ADC_REGULAR_RANK_2;
+  if (HAL_ADC_ConfigChannel(&hadc1, &sConfig) != HAL_OK)
+  {
+    Error_Handler();
+  }
+
+  /** Configure Regular Channel
+  */
+  sConfig.Channel = ADC_CHANNEL_2;
+  sConfig.Rank = ADC_REGULAR_RANK_3;
   if (HAL_ADC_ConfigChannel(&hadc1, &sConfig) != HAL_OK)
   {
     Error_Handler();
