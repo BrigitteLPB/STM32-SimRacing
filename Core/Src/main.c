@@ -129,12 +129,12 @@ int main(void)
 
 	while (1) {
 		if (!t_led) {
-			t_led = 1000;
+			t_led = 500;
 			HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_13);
 		}
 
 		if (!t_usb) {
-			t_usb = 100;
+			t_usb = 1;
 
 			// convert data
 			for(uint8_t i=0; i<ADC_CHANNEL_COUNT; i++){
